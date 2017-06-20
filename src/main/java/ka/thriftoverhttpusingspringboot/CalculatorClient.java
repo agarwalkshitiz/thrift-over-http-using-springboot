@@ -7,7 +7,9 @@ import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.LoggerFactory;
 
+import ka.thriftoverhttpusingspringboot.api.ArithematicException;
 import ka.thriftoverhttpusingspringboot.api.CalculationService;
+import ka.thriftoverhttpusingspringboot.api.Operation;
 
 public class CalculatorClient {
   private static int port = 8080;
@@ -30,12 +32,21 @@ public class CalculatorClient {
       logger.debug("{}+{}={}", x, y, client.add(x, y));
       logger.debug("{}/{}={}", x, y, client.divide(x, y));
       logger.debug("{}-{}={}", x, y, client.subtract(x, y));
-
+      logger.debug("{}x{}={}", x, y, client.operate(Operation.MULTIPLY, x, y));
+      logger.debug("{}+{}={}", x, y, client.operate(Operation.ADD, x, y));
+      logger.debug("{}/{}={}", x, y, client.operate(Operation.DIVIDE, x, y));
+      logger.debug("{}-{}={}", x, y, client.operate(Operation.SUBTRACT, x, y));
+      try {
+        client.operate(Operation.DIVIDE, x, 0);
+      } catch (ArithematicException exception) {
+        logger.debug("ArithematicException Message:\"{}\" Param1:\"{}\" Param2:\"{}\"",
+            exception.getMessage(), exception.getParam1(), exception.getParam2());
+      }
       httpClient.close();
     } catch (TTransportException e) {
-      logger.debug("Connection failed : " + e.getMessage());
+      logger.debug("Connection failed : {}", e.getMessage());
     } catch (TException x) {
-      logger.debug("Api exception : " + x.getMessage());
+      logger.debug("Api exception : {}", x.getMessage());
     }
   }
 
